@@ -14,9 +14,20 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('address')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('profile_image')->nullable();
+            $table->boolean('subscription_active')->default(false);
+            $table->dateTime('trial_ends_at')->nullable();
+            $table->string('current_plan')->nullable();
+            $table->integer('max_boarding_houses')->nullable();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
+            $table->timestamp('phone_verified_at')->nullable();
+            $table->string('profile_photo_path')->nullable(); 
+            $table->string('business_permit_path')->nullable();
             $table->string('password');
+            $table->enum('role',['admin', 'landlord', 'user'])->default('user');;
             $table->rememberToken();
             $table->timestamps();
         });

@@ -22,14 +22,51 @@ class AuthenticatedSessionController extends Controller
     /**
      * Handle an incoming authentication request.
      */
+    // public function store(LoginRequest $request): RedirectResponse
+    // {
+    //     $request->authenticate();
+
+    //     $request->session()->regenerate();
+
+    //     return redirect()->intended(route('dashboard', absolute: false));
+    // }
     public function store(LoginRequest $request): RedirectResponse
-    {
-        $request->authenticate();
+{
+    // Authenticate the user
+    $request->authenticate();
 
-        $request->session()->regenerate();
+    // Regenerate session to prevent session fixation
+    $request->session()->regenerate();
 
-        return redirect()->intended(route('dashboard', absolute: false));
+    $user = Auth::user();
+
+    // Check if the user came from the "List your Property" button
+    if ($request->query('action') === 'list_property') {
+        // Update user role to 'landlord' if it's not already
+        if ($user->role !== 'landlord') {
+            $user->role = 'landlord';
+            $user->save(); // Save changes to the database
+        }
+
+        // Redirect to the boarding house creation page
+        return redirect()->route('boarding-house.create');
     }
+
+    // Handle role-based redirection
+    if ($user->role === 'admin') {
+        return redirect(route('admin.dashboard'));
+    }
+
+    if ($user->role === 'landlord') {
+        return redirect(route('dashboard'));
+    }
+
+    // Default redirection for regular users
+    return redirect()->route('dashboard');
+}
+
+
+
 
     /**
      * Destroy an authenticated session.
